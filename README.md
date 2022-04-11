@@ -1,4 +1,4 @@
-# @once/snowpack-plugin-once-image-sharp
+# @oncede/snowpack-plugin-once-image-sharp
 > snowpack image sharp plugin
 
 [![NPM Version][npm-image]][npm-url]
@@ -13,7 +13,7 @@ This snowpack plugin allows you to use the sharp image library with percentages 
 
 
 ```sh
-npm i @once/snowpack-plugin-once-image-sharp@latest
+npm i @oncede/snowpack-plugin-once-image-sharp@latest
 ```
 
 ## Release History
