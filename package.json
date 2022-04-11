@@ -1,0 +1,43 @@
+{
+    "name": "@once/snowpack-plugin-once-image-sharp",
+    "version": "0.0.1",
+    "description": "snowpack plugin to use sharp with percentages",
+    "repository": "git@github.com:cluigDE/snowpack-plugin-once-image-sharp.git",
+    "bugs": "https://github.com/cluigDE/snowpack-plugin-once-image-sharp/issues",
+    "homepage": "https://github.com/cluigDE/snowpack-plugin-once-image-sharp#readme",
+    "main": "src/index.js",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "clean": "rimraf dist",
+        "prebuild": "npm run clean",
+        "build": "tsc"
+    },
+    "keywords": [
+        "snowpack",
+        "snowpack plugin",
+        "snowpack plugin image",
+        "snowpack image",
+        "snowpack image resize",
+        "snowpack sharp",
+        "sharp"
+    ],
+    "author": "Christoph Luig <c.luig.0nce@gmail.com> (https://www.0nce.de)",
+    "license": "MIT",
+    "devDependencies": {
+        "rimraf": "^3.0.2",
+        "sharp": "^0.30.3",
+        "typescript": "^4.6.3"
+    },
+    "dependencies": {
+        "@types/micromatch": "^4.0.1",
+        "@types/sharp": "^0.25.1",
+        "micromatch": "^4.0.2"
+    },
+    "peerDependencies": {
+        "sharp": ">=0.25.4",
+        "snowpack": ">2.9.0"
+    }
+}
