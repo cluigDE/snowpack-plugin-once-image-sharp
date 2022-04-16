@@ -1,6 +1,6 @@
 {
     "name": "@oncede/snowpack-plugin-once-image-sharp",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "snowpack plugin to use sharp with percentages",
     "repository": "git@github.com:cluigDE/snowpack-plugin-once-image-sharp.git",
     "bugs": "https://github.com/cluigDE/snowpack-plugin-once-image-sharp/issues",
@@ -30,14 +30,14 @@
     "author": "Christoph Luig <c.luig.0nce@gmail.com> (https://www.0nce.de)",
     "license": "MIT",
     "devDependencies": {
+        "@types/micromatch": "^4.0.1",
+        "@types/sharp": "^0.25.1",
         "copy": "^0.3.2",
         "rimraf": "^3.0.2",
         "snowpack": "^3.8.8",
         "typescript": "^4.6.3"
     },
     "dependencies": {
-        "@types/micromatch": "^4.0.1",
-        "@types/sharp": "^0.25.1",
         "micromatch": "^4.0.2",
         "vinyl": "^2.2.1",
         "chalk": "^4.1.2",

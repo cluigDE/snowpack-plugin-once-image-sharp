@@ -13,7 +13,7 @@ This snowpack plugin allows you to use the sharp image library with percentages 
 
 
 ```sh
-npm i @oncede/snowpack-plugin-once-image-sharp@latest
+npm i -D @oncede/snowpack-plugin-once-image-sharp@latest sharp@latest
 ```
 
 ## Run example
