@@ -1,6 +1,6 @@
 # @oncede/snowpack-plugin-once-image-sharp
 > This library is in development and should not be used in production.<br>
-> For now I try to implement some kind of feedback and control over the generation of images.<br><br> Stay tuned for new Updates.
+> For now I try to implement some kind of feedback and control over the generation of images.<br><br> Stay tuned for new Updates. <br><br> If you have any suggestions, don't hesitate to open an issue.
 
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
@@ -118,7 +118,8 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
 ```
 
 ## Release History
-
+* 0.2.1
+    * Running only on build process w/o Errors
 * 0.1.0
     * First working example
 * 0.0.3
