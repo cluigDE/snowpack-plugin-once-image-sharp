@@ -1,4 +1,5 @@
 {
+    "root": "example",
     "mount": {
         "example/src": { "url": "/" }
     },
