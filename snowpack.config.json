@@ -12,7 +12,7 @@
             "@oncede/snowpack-plugin-once-image-sharp",
             {
                 "options": {
-                    "forceRebuild": false
+                    "silent": false
                 },
                 "imageConfig": {
                     "**/*.jpg": [

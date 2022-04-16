@@ -44,6 +44,7 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
             "@oncede/snowpack-plugin-once-image-sharp",
             {
                 "options": {
+                    "silent": true,
                     "forceRebuild": false
                 },
                 "imageConfig": {

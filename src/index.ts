@@ -7,11 +7,14 @@ import rename from "rename";
 import path from "path";
 import fs from "fs";
 import mkdirp from "mkdirp";
+import chalk from "chalk";
+import log from "log-node";
 
 let snowpackOutputDir = "";
 let snowpackRootDir = "";
 let snowpackMountDirs = {};
 let buildOptionsClean = true;
+let silent = true;
 
 export default function plugin(_: any, images: SnowpackPluginOptions) {
     return {
@@ -21,6 +24,27 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
             snowpackRootDir = snowpackConfig.root;
             snowpackMountDirs = snowpackConfig.mount;
             buildOptionsClean = snowpackConfig.buildOptions.clean;
+
+            if(typeof images.options === 'undefined') {
+                images.options = {
+                    silent: true,
+                    forceRebuild: false
+                }
+            }
+
+            if (typeof images.options.silent === 'boolean') {
+                silent = images.options.silent;
+            } else {
+                images.options.silent = true;
+            }
+            if (
+                typeof images.options.forceRebuild === "boolean" &&
+                images.options.forceRebuild === true
+            ) {
+                console.log(`${chalk.bgRed("forceRebuild enabled")}`);
+            } else {
+                images.options.forceRebuild = false;
+            }
         },
         async transform({
             contents,
@@ -35,6 +59,7 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                 if (micromatch.isMatch(filePath, globPattern)) {
                     let toFormat;
                     let relativePath;
+
 
                     const mountDirs = Object.keys(snowpackMountDirs);
 
@@ -53,6 +78,12 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                     const basename = path.basename(filePath).replace(ext, "");
                     const imagesToGenerate: SnowpackPluginResizeImagesOptions[] =
                         images.imageConfig[globPattern];
+                    log(
+                        `${chalk.bgBlue(
+                            basename + ext
+                        )} - Base Found`
+                    );
+
                     for (const methods of imagesToGenerate) {
                         const formatOptions: any =
                             (methods as any)["formatOptions"] || {};
@@ -83,17 +114,23 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                             toFormat = format(copyFilePath);
                         }
 
+                        const pathToBe =
+                            snowpackOutputDir +
+                            relativePath +
+                            newBasename +
+                            "." +
+                            toFormat;
+
                         if (
-                            (false === buildOptionsClean && false ===
-                                images.options.forceRebuild ) ||
-                            (await checkFileExists(
-                                snowpackOutputDir +
-                                    relativePath +
-                                    newBasename +
-                                    "." +
-                                    toFormat
-                            ))
+                            (false === buildOptionsClean &&
+                                false === images.options.forceRebuild) &&
+                            (await checkFileExists(pathToBe))
                         ) {
+                            log(
+                                `   ${chalk.bgCyanBright(
+                                    newBasename + "." + toFormat
+                                )} - SKIP`
+                            );
                             continue;
                         }
                         delete (methods as any)["formatOptions"];
@@ -131,7 +168,13 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                             return fs.promises.writeFile(
                                 path + newFile.base + newFile.extname,
                                 newFile.contents
-                            );
+                            ).then(()=> {
+                                log(
+                                    `   ${chalk.bgBlueBright(
+                                        newBasename + "." + toFormat
+                                    )} - Generated`
+                                );
+                            });
                         };
                         promisesToAwait.push(
                             writeFile(snowpackOutputDir + relativePath, newFile)
@@ -145,6 +188,10 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
             }
         },
     };
+}
+
+function log(msg:string) {
+    if(silent === false) console.log(msg);
 }
 
 function checkFileExists(filepath){
@@ -185,6 +232,7 @@ export type SnowpackPluginResizeImagesOptions = {
 interface SnowpackPluginOptions {
     options: {
         forceRebuild: boolean;
+        silent: boolean;
     };
     imageConfig: SnowpackPluginOptions;
 };
