@@ -8,7 +8,6 @@ import path from "path";
 import fs from "fs";
 import mkdirp from "mkdirp";
 import chalk from "chalk";
-import log from "log-node";
 
 let snowpackOutputDir = "";
 let snowpackRootDir = "";
