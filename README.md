@@ -1,5 +1,6 @@
 # @oncede/snowpack-plugin-once-image-sharp
-> snowpack image sharp plugin
+> This library is in development and should not be used in production.<br>
+> For now I try to implement some kind of feedback and control over the generation of images. Stay tuned for new Updates.
 
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
@@ -15,8 +16,18 @@ This snowpack plugin allows you to use the sharp image library with percentages 
 npm i @oncede/snowpack-plugin-once-image-sharp@latest
 ```
 
+## Run example
+
+
+```sh
+git clone @oncede/snowpack-plugin-once-image-sharp . && npm i && npm run example
+```
+
+
 ## Release History
 
+* 0.1.0
+    * First working example
 * 0.0.3
     * init
 

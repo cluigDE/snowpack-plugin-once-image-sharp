@@ -1,6 +1,6 @@
 {
     "name": "@oncede/snowpack-plugin-once-image-sharp",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "description": "snowpack plugin to use sharp with percentages",
     "repository": "git@github.com:cluigDE/snowpack-plugin-once-image-sharp.git",
     "bugs": "https://github.com/cluigDE/snowpack-plugin-once-image-sharp/issues",
@@ -11,7 +11,12 @@
     ],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc"
+        "preexample": "npm run clear && npm run build && mkdirp node_modules/@oncede/snowpack-plugin-once-image-sharp && copy dist/**/* node_modules/@oncede/snowpack-plugin-once-image-sharp/",
+        "example": "snowpack build",
+        "clear": "rimraf node_modules/@oncede/snowpack-plugin-once-image-sharp",
+        "build": "rimraf dist && tsc",
+        "mkdirp": "mkdirp",
+        "rimraf": "rimraf"
     },
     "keywords": [
         "snowpack",
@@ -25,8 +30,14 @@
     "author": "Christoph Luig <c.luig.0nce@gmail.com> (https://www.0nce.de)",
     "license": "MIT",
     "devDependencies": {
+        "copy": "^0.3.2",
+        "mkdirp": "^1.0.4",
+        "rename": "^1.0.4",
+        "rimraf": "^3.0.2",
         "sharp": "^0.30.3",
-        "typescript": "^4.6.3"
+        "snowpack": "^3.8.8",
+        "typescript": "^4.6.3",
+        "vinyl": "^2.2.1"
     },
     "dependencies": {
         "@types/micromatch": "^4.0.1",
