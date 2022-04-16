@@ -1,11 +1,11 @@
 {
     "mount": {
-        "./test/src": { "url": "/" }
+        "example/src": { "url": "/" }
     },
     "exclude": [],
     "buildOptions": {
         "clean": false,
-        "out": "./test/dist"
+        "out": "./example/build"
     },
     "plugins": [
         [

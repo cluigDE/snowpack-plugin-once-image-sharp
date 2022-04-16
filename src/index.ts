@@ -24,14 +24,14 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
             snowpackMountDirs = snowpackConfig.mount;
             buildOptionsClean = snowpackConfig.buildOptions.clean;
 
-            if(typeof images.options === 'undefined') {
+            if (typeof images.options === "undefined") {
                 images.options = {
                     silent: true,
-                    forceRebuild: false
-                }
+                    forceRebuild: false,
+                };
             }
 
-            if (typeof images.options.silent === 'boolean') {
+            if (typeof images.options.silent === "boolean") {
                 silent = images.options.silent;
             } else {
                 images.options.silent = true;
@@ -45,20 +45,20 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                 images.options.forceRebuild = false;
             }
         },
-        async transform({
-            contents,
-            id: filePath,
-        }: {
-            contents: any;
-            id: string;
-        }) {
+        resolve: {
+            input: ['.jpg'],
+            output: ['.webp'],
+        },
+        async load(file) {
             let base;
+            const filePath = file.filePath;
+            console.log(filePath);
+            console.log(images.imageConfig);
             const promisesToAwait = [];
             for (const globPattern in images.imageConfig) {
                 if (micromatch.isMatch(filePath, globPattern)) {
                     let toFormat;
                     let relativePath;
-
 
                     const mountDirs = Object.keys(snowpackMountDirs);
 
@@ -70,22 +70,19 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                             .replace(foundDir[0], "")
                             .replace(path.basename(filePath), "");
                     }
+                    const contents = await fs.promises.readFile(filePath, "binary");
                     base = base || sharp(Buffer.from(contents, "binary"));
 
                     const metadata = await base.metadata();
                     const ext = path.extname(path.basename(filePath));
                     const basename = path.basename(filePath).replace(ext, "");
-                    const imagesToGenerate: SnowpackPluginResizeImagesOptions[] =
-                        images.imageConfig[globPattern];
-                    log(
-                        `${chalk.bgBlue(
-                            basename + ext
-                        )} - Base Found`
-                    );
-
-                    for (const methods of imagesToGenerate) {
+                    log(`${chalk.bgBlue(basename + ext)} - Base Found`);
+                    let formatOptionsParent = {};
+                    let toFormatParent = ext;
+                    for (const methods of images.imageConfig[globPattern]) {
                         const formatOptions: any =
                             (methods as any)["formatOptions"] || {};
+                        formatOptionsParent = formatOptions;
                         let copyFilePath = filePath;
                         let newBasename = basename;
 
@@ -109,6 +106,7 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
 
                         if (methods["format"]) {
                             toFormat = methods["format"];
+                            toFormatParent = toFormat;
                         } else {
                             toFormat = format(copyFilePath);
                         }
@@ -121,8 +119,8 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                             toFormat;
 
                         if (
-                            (false === buildOptionsClean &&
-                                false === images.options.forceRebuild) &&
+                            false === buildOptionsClean &&
+                            false === images.options.forceRebuild &&
                             (await checkFileExists(pathToBe))
                         ) {
                             log(
@@ -164,24 +162,32 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                         newFile.extname = "." + toFormat;
                         const writeFile = async (path, newFile) => {
                             await mkdirp(path);
-                            return fs.promises.writeFile(
-                                path + newFile.base + newFile.extname,
-                                newFile.contents
-                            ).then(()=> {
-                                log(
-                                    `   ${chalk.bgBlueBright(
-                                        newBasename + "." + toFormat
-                                    )} - Generated`
-                                );
-                            });
+                            return fs.promises
+                                .writeFile(
+                                    path + newFile.base + newFile.extname,
+                                    newFile.contents
+                                )
+                                .then(() => {
+                                    log(
+                                        `   ${chalk.bgBlueBright(
+                                            newBasename + "." + toFormat
+                                        )} - Generated`
+                                    );
+                                });
                         };
                         promisesToAwait.push(
                             writeFile(snowpackOutputDir + relativePath, newFile)
                         );
                     }
                     await Promise.all(promisesToAwait);
+                    base = convertImage(
+                        base,
+                        toFormatParent,
+                        formatOptionsParent
+                    );
+                    base.extname = "." + toFormatParent;
                     return {
-                        result: await base.toBuffer(),
+                        ["." + toFormatParent]: await base.toBuffer(),
                     };
                 }
             }
@@ -227,11 +233,11 @@ export type SnowpackPluginResizeImagesOptions = {
                 | any[];
         }
     ]
-}
+};
 interface SnowpackPluginOptions {
     options: {
         forceRebuild: boolean;
         silent: boolean;
     };
-    imageConfig: SnowpackPluginOptions;
+    imageConfig: SnowpackPluginResizeImagesOptions;
 };

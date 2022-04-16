@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "lazysizes": "./lazysizes.js",
+    "lazysizes/plugins/parent-fit/ls.parent-fit": "./lazysizes/plugins/parent-fit/ls.parent-fit.js"
+  }
+}
