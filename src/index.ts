@@ -5,29 +5,22 @@ import sharp from "sharp";
 import Vinyl from "vinyl";
 import rename from "rename";
 import path from "path";
-import * as fs from "fs/promises";
+import fs from "fs";
 import mkdirp from "mkdirp";
 
 let snowpackOutputDir = "";
 let snowpackRootDir = "";
 let snowpackMountDirs = {};
+let buildOptionsClean = true;
 
-const wait = (delaySeconds) => {
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(0), delaySeconds * 1000);
-    });
-};
-
-export default function plugin(
-    _: any,
-    images: SnowpackPluginResizeImagesOptions
-) {
+export default function plugin(_: any, images: SnowpackPluginOptions) {
     return {
         name: "snowpack-plugin-once-image-sharp",
         config(snowpackConfig) {
             snowpackOutputDir = snowpackConfig.buildOptions.out;
             snowpackRootDir = snowpackConfig.root;
             snowpackMountDirs = snowpackConfig.mount;
+            buildOptionsClean = snowpackConfig.buildOptions.clean;
         },
         async transform({
             contents,
@@ -37,8 +30,8 @@ export default function plugin(
             id: string;
         }) {
             let base;
-            const promisesToAwait = []
-            for (const globPattern in images) {
+            const promisesToAwait = [];
+            for (const globPattern in images.imageConfig) {
                 if (micromatch.isMatch(filePath, globPattern)) {
                     let toFormat;
                     let relativePath;
@@ -58,7 +51,8 @@ export default function plugin(
                     const metadata = await base.metadata();
                     const ext = path.extname(path.basename(filePath));
                     const basename = path.basename(filePath).replace(ext, "");
-                    const imagesToGenerate = images[globPattern];
+                    const imagesToGenerate: SnowpackPluginResizeImagesOptions[] =
+                        images.imageConfig[globPattern];
                     for (const methods of imagesToGenerate) {
                         const formatOptions: any =
                             (methods as any)["formatOptions"] || {};
@@ -89,6 +83,19 @@ export default function plugin(
                             toFormat = format(copyFilePath);
                         }
 
+                        if (
+                            (false === buildOptionsClean && false ===
+                                images.options.forceRebuild ) ||
+                            (await checkFileExists(
+                                snowpackOutputDir +
+                                    relativePath +
+                                    newBasename +
+                                    "." +
+                                    toFormat
+                            ))
+                        ) {
+                            continue;
+                        }
                         delete (methods as any)["formatOptions"];
                         delete (methods as any)["format"];
                         delete (methods as any)["rename"];
@@ -121,7 +128,7 @@ export default function plugin(
                         newFile.extname = "." + toFormat;
                         const writeFile = async (path, newFile) => {
                             await mkdirp(path);
-                            return fs.writeFile(
+                            return fs.promises.writeFile(
                                 path + newFile.base + newFile.extname,
                                 newFile.contents
                             );
@@ -129,7 +136,7 @@ export default function plugin(
                         promisesToAwait.push(
                             writeFile(snowpackOutputDir + relativePath, newFile)
                         );
-                    };
+                    }
                     await Promise.all(promisesToAwait);
                     return {
                         result: await base.toBuffer(),
@@ -138,6 +145,14 @@ export default function plugin(
             }
         },
     };
+}
+
+function checkFileExists(filepath){
+  return new Promise((resolve, reject) => {
+    fs.access(filepath, fs.constants.F_OK, error => {
+      resolve(!error);
+    });
+  });
 }
 
 function convertImage(image, format, config) {
@@ -161,9 +176,15 @@ export type SnowpackPluginResizeImagesOptions = {
         {
             [sharpMethod: string]:
                 | {
-                      [sharpMethodOption: string]: any;
-                  }
+                    [sharpMethodOption: string]: any;
+                }
                 | any[];
         }
-    ];
+    ]
+}
+interface SnowpackPluginOptions {
+    options: {
+        forceRebuild: boolean;
+    };
+    imageConfig: SnowpackPluginOptions;
 };
