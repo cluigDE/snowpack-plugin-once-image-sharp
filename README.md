@@ -2,6 +2,10 @@
 > This library is in development and should not be used in production.<br>
 > For now I try to implement some kind of feedback and control over the generation of images.<br><br> Stay tuned for new Updates. <br><br> If you have any suggestions, don't hesitate to open an issue.
 
+## Experimental Plugin
+Still fighting with the capabilities of snowpack. If anyone knows how to passdown custom cli attributes to this plugin, let me know.
+<br>It only runs on the build process. In Dev work with the full image fallback.
+
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
 
@@ -46,7 +50,8 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
                 "options": {
                     "silent": true,
                     "forceRebuild": false,
-                    "defaultFormat": "webp"
+                    "defaultFormat": "webp",
+                    "jsonOutput": "lazysizes.json"
                 },
                 "imageConfig": {
                     "**/*.jpg": [
@@ -117,6 +122,88 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
         ]
     ]
 ```
+<p>
+lazySizes.json Output<br>
+It might be easier to dynamically build the lazysizes images with this JSON
+
+This JSON will only build on `snowpack build`
+</p>
+
+```json
+{
+    "/assets/img/": {
+        "dariusz-sankowski-dvK_CT1Wg78-unsplash": {
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-init.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-5%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-10%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-20%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-30%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-40%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-50%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-60%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-70%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-80%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            },
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-90%.webp": {
+                "format": "jpeg",
+                "size": 1069192,
+                "width": 4608,
+                "height": 3456
+            }
+        }
+    }
+}
+```
+
 
 ## Release History
 * 0.3.0

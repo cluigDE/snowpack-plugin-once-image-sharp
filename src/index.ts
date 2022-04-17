@@ -15,6 +15,7 @@ let snowpackMountDirs = {};
 let buildOptionsClean = true;
 let silent = true;
 let jsonOutput = null;
+const jsonObj = {};
 
 export default function plugin(_: any, images: SnowpackPluginOptions) {
     return {
@@ -50,7 +51,7 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                 typeof images.options.jsonOutput === "string" &&
                 images.options.jsonOutput !== null
             ) {
-                jsonOutput = snowpackRootDir + images.options.jsonOutput;
+                jsonOutput = snowpackOutputDir + '/' + images.options.jsonOutput;
             } else {
                 images.options.jsonOutput = null;
             }
@@ -82,8 +83,8 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
             const promisesToAwait = [];
             for (const globPattern in images.imageConfig) {
                 if (micromatch.isMatch(filePath, globPattern)) {
-                    let toFormat;
-                    let relativePath;
+                    let toFormat: any = '';
+                    let relativePath = '';
 
                     const mountDirs = Object.keys(snowpackMountDirs);
 
@@ -198,7 +199,32 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                                     path + newFile.base + newFile.extname,
                                     newFile.contents
                                 )
-                                .then(() => {
+                                .then(async () => {
+                                    if (
+                                        !Object.prototype.hasOwnProperty.call(
+                                            jsonObj,
+                                            relativePath
+                                        )
+                                    ) {
+                                        jsonObj[relativePath] = {};
+                                    }
+                                    if (
+                                        !Object.prototype.hasOwnProperty.call(
+                                            jsonObj[relativePath],
+                                            basename
+                                        )
+                                    ) {
+                                        jsonObj[relativePath][basename] = {};
+                                    }
+                                    const meta = await clone.metadata();
+                                    jsonObj[relativePath][basename][
+                                        newFile.base + newFile.extname
+                                    ] = {
+                                        format: meta.format,
+                                        size: meta.size,
+                                        width: meta.width,
+                                        height: meta.height
+                                     };
                                     log(
                                         `   ${chalk.bgBlueBright(
                                             newBasename + "." + toFormat
@@ -211,6 +237,10 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                         );
                     }
                     await Promise.all(promisesToAwait);
+
+                    if(jsonOutput !== null) {
+                        await fs.promises.writeFile(jsonOutput, JSON.stringify(jsonObj));
+                    }
                     /* base = convertImage(
                         base,
                         images.options.defaultFormat,

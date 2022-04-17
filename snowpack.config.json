@@ -5,7 +5,7 @@
     },
     "exclude": [],
     "buildOptions": {
-        "clean": false,
+        "clean": true,
         "out": "./example/build"
     },
     "plugins": [
@@ -14,7 +14,8 @@
             {
                 "options": {
                     "silent": false,
-                    "defaultFormat": "webp"
+                    "defaultFormat": "webp",
+                    "jsonOutput": "lazysizes.json"
                 },
                 "imageConfig": {
                     "**/*.jpg": [

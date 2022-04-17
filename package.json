@@ -1,6 +1,6 @@
 {
     "name": "@oncede/snowpack-plugin-once-image-sharp",
-    "version": "0.2.3",
+    "version": "0.3.0",
     "description": "snowpack plugin to use sharp with percentages",
     "repository": "git@github.com:cluigDE/snowpack-plugin-once-image-sharp.git",
     "bugs": "https://github.com/cluigDE/snowpack-plugin-once-image-sharp/issues",
