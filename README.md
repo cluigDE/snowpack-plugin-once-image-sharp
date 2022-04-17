@@ -45,7 +45,8 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
             {
                 "options": {
                     "silent": true,
-                    "forceRebuild": false
+                    "forceRebuild": false,
+                    "defaultFormat": "webp"
                 },
                 "imageConfig": {
                     "**/*.jpg": [
@@ -118,6 +119,11 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
 ```
 
 ## Release History
+* 0.3.0
+    * added a jsonOutput to simplify the dynamic usage
+* 0.2.3
+    * switched from transform() to load()
+    * added a defaultFormat option for the source image
 * 0.2.1
     * Running only on build process w/o Errors
 * 0.1.0

@@ -13,7 +13,8 @@
             "@oncede/snowpack-plugin-once-image-sharp",
             {
                 "options": {
-                    "silent": false
+                    "silent": false,
+                    "defaultFormat": "webp"
                 },
                 "imageConfig": {
                     "**/*.jpg": [
