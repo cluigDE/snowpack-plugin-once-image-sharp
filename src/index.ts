@@ -1,5 +1,4 @@
 import size from "./size";
-import format from "./format";
 import micromatch from "micromatch";
 import sharp from "sharp";
 import Vinyl from "vinyl";
@@ -8,14 +7,23 @@ import path from "path";
 import fs from "fs";
 import mkdirp from "mkdirp";
 import chalk from "chalk";
+import {PluginLoadOptions} from 'snowpack'
 
 let snowpackOutputDir = "";
 let snowpackRootDir = "";
 let snowpackMountDirs = {};
+let options: Options;
 let buildOptionsClean = true;
-let silent = true;
-let jsonOutput = null;
 const jsonObj = {};
+
+
+const defaultOptions: Options = {
+    silent: true,
+    forceRebuild: false,
+    jsonOutput: "image_sizes.json",
+    generateImagesOnDev: false,
+    defaultFormat: "webp",
+};
 
 export default function plugin(_: any, images: SnowpackPluginOptions) {
     return {
@@ -25,47 +33,8 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
             snowpackRootDir = snowpackConfig.root;
             snowpackMountDirs = snowpackConfig.mount;
             buildOptionsClean = snowpackConfig.buildOptions.clean;
-            if (typeof images.options === "undefined") {
-                images.options = {
-                    silent: true,
-                    forceRebuild: false,
-                    jsonOutput: null,
-                    defaultFormat: ".webp",
-                };
-            }
 
-            if (typeof images.options.silent === "boolean") {
-                silent = images.options.silent;
-            } else {
-                images.options.silent = true;
-            }
-            if (
-                typeof images.options.forceRebuild === "boolean" &&
-                images.options.forceRebuild === true
-            ) {
-                console.log(`${chalk.bgRed("forceRebuild enabled")}`);
-            } else {
-                images.options.forceRebuild = false;
-            }
-            if (
-                typeof images.options.jsonOutput === "string" &&
-                images.options.jsonOutput !== null
-            ) {
-                jsonOutput = snowpackOutputDir + '/' + images.options.jsonOutput;
-            } else {
-                images.options.jsonOutput = null;
-            }
-            if (
-                typeof images.options.defaultFormat === "string" &&
-                images.options.defaultFormat !== null
-            ) {
-                images.options.defaultFormat =
-                    images.options.defaultFormat.indexOf(".") === -1
-                        ? "." + images.options.defaultFormat
-                        : images.options.defaultFormat;
-            } else {
-                images.options.defaultFormat = ".webp";
-            }
+            options = { ...defaultOptions, ...images.options};
         },
         resolve: {
             input: Object.keys(images.imageConfig).map((v) =>
@@ -77,14 +46,14 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                     : images.options.defaultFormat,
             ],
         },
-        async load(file) {
+        async load(plo: PluginLoadOptions) {
             let base;
-            const filePath = file.filePath;
+            const filePath = plo.filePath;
             const promisesToAwait = [];
             for (const globPattern in images.imageConfig) {
                 if (micromatch.isMatch(filePath, globPattern)) {
-                    let toFormat: any = '';
-                    let relativePath = '';
+                    let toFormat: any = "";
+                    let relativePath = "";
 
                     const mountDirs = Object.keys(snowpackMountDirs);
 
@@ -149,19 +118,18 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                             newBasename +
                             "." +
                             toFormat;
-
-                        if (
-                            false === buildOptionsClean &&
-                            false === images.options.forceRebuild &&
-                            (await checkFileExists(pathToBe))
-                        ) {
-                            log(
-                                `   ${chalk.bgCyanBright(
-                                    newBasename + "." + toFormat
-                                )} - SKIP`
-                            );
-                            continue;
-                        }
+                            if (
+                                false === buildOptionsClean &&
+                                false === images.options.forceRebuild &&
+                                (await checkFileExists(pathToBe))
+                            ) {
+                                log(
+                                    `   ${chalk.bgCyanBright(
+                                        newBasename + "." + toFormat
+                                    )} - SKIP`
+                                );
+                                continue;
+                            }
                         delete (methods as any)["formatOptions"];
                         delete (methods as any)["format"];
                         delete (methods as any)["rename"];
@@ -171,6 +139,31 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                             toFormat,
                             formatOptions
                         );
+
+
+
+                        if (plo.isDev && !options.generateImagesOnDev) {
+                            const cloneReplacement = {
+                                format: toFormat,
+                                size: -1,
+                                width: (methods["resize"] as any).width,
+                                height: getCalculatedHeight(
+                                    metadata,
+                                    (methods["resize"] as any).width
+                                ),
+                            };
+                            writeIntoJonObj(
+                                relativePath,
+                                basename,
+                                {
+                                    base: newBasename,
+                                    extname: "." + toFormat,
+                                },
+                                cloneReplacement
+                            );
+
+                            continue;
+                        }
 
                         for (const method in methods) {
                             const methodOptions = methods[method];
@@ -183,7 +176,10 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                                 clone[method](methodOptions);
                             }
                         }
-                        const buffer = await clone.toBuffer();
+                        const { data, info } = await clone.toBuffer({
+                            resolveWithObject: true,
+                        });
+                        const buffer = data;
                         const newFile = new Vinyl({
                             cwd: "/",
                             base: newBasename,
@@ -192,6 +188,7 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                         });
 
                         newFile.extname = "." + toFormat;
+
                         const writeFile = async (path, newFile) => {
                             await mkdirp(path);
                             return fs.promises
@@ -199,32 +196,8 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                                     path + newFile.base + newFile.extname,
                                     newFile.contents
                                 )
-                                .then(async () => {
-                                    if (
-                                        !Object.prototype.hasOwnProperty.call(
-                                            jsonObj,
-                                            relativePath
-                                        )
-                                    ) {
-                                        jsonObj[relativePath] = {};
-                                    }
-                                    if (
-                                        !Object.prototype.hasOwnProperty.call(
-                                            jsonObj[relativePath],
-                                            basename
-                                        )
-                                    ) {
-                                        jsonObj[relativePath][basename] = {};
-                                    }
-                                    const meta = await clone.metadata();
-                                    jsonObj[relativePath][basename][
-                                        newFile.base + newFile.extname
-                                    ] = {
-                                        format: meta.format,
-                                        size: meta.size,
-                                        width: meta.width,
-                                        height: meta.height
-                                     };
+                                .then((e) => {
+                                    writeIntoJonObj(relativePath, basename, newFile, info);
                                     log(
                                         `   ${chalk.bgBlueBright(
                                             newBasename + "." + toFormat
@@ -238,49 +211,18 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
                     }
                     await Promise.all(promisesToAwait);
 
-                    if(jsonOutput !== null) {
-                        await fs.promises.writeFile(jsonOutput, JSON.stringify(jsonObj));
+                    if (options.jsonOutput !== null) {
+                        await fs.promises.writeFile(
+                            options.jsonOutput,
+                            JSON.stringify(jsonObj),
+                        );
                     }
-                    /* base = convertImage(
-                        base,
-                        images.options.defaultFormat,
-                        formatOptionsParent
-                    ); */
-                    //base.extname = "." + images.options.defaultFormat;
-
-                    /* if (    !(false === buildOptionsClean &&
-                            false === images.options.forceRebuild &&
-                            (await checkFileExists(
-                        snowpackOutputDir +
-                            relativePath +
-                            basename +
-                            base.extname)))
-                        ) {
-                            await fs.promises
-                                .writeFile(
-                                    snowpackOutputDir +
-                                        relativePath +
-                                        basename +
-                                        base.extname,
-                                    await base.toBuffer()
-                                )
-                                .then(() => {
-                                    log(
-                                        `   ${chalk.bgBlueBright(
-                                            basename + "." + toFormat
-                                        )} - Generated`
-                                    );
-                                });
-                        } else {
-                            log(
-                                `   ${chalk.bgCyanBright(
-                                    basename + "." + toFormat
-                                )} - SKIP`
-                            );
-                        } */
 
                     return {
-                        [images.options.defaultFormat]: await base.toBuffer(),
+                        [images.options.defaultFormat.indexOf(".") === -1
+                            ? "." + images.options.defaultFormat
+                            : images.options.defaultFormat]:
+                            await base.toBuffer(),
                     };
                 }
             }
@@ -289,7 +231,7 @@ export default function plugin(_: any, images: SnowpackPluginOptions) {
 }
 
 function log(msg:string) {
-    if(silent === false) console.log(msg);
+    if(options.silent === false) console.log(msg);
 }
 
 function checkFileExists(filepath){
@@ -316,6 +258,32 @@ function convertImage(image, format, config) {
     }
 }
 
+function getCalculatedHeight(metadata, targetWidth) {
+    const nHeight = metadata.height;
+    const nWidth = metadata.width;
+    const ratio = targetWidth / nWidth;
+    return Math.abs(Math.round(nHeight * ratio));
+}
+
+async function writeIntoJonObj(relativePath: string, basename: string, newFile: any, info: any) {
+    if (!Object.prototype.hasOwnProperty.call(jsonObj, relativePath)) {
+        jsonObj[relativePath] = {};
+    }
+    if (
+        !Object.prototype.hasOwnProperty.call(jsonObj[relativePath], basename)
+    ) {
+        jsonObj[relativePath][basename] = {};
+    }
+    let meta: any = info;
+
+    jsonObj[relativePath][basename][newFile.base + newFile.extname] = {
+        format: meta.format,
+        size: meta.size,
+        width: meta.width,
+        height: meta.height,
+    };
+}
+
 export type SnowpackPluginResizeImagesOptions = {
     [globPattern: string]: [
         {
@@ -328,11 +296,14 @@ export type SnowpackPluginResizeImagesOptions = {
     ]
 };
 interface SnowpackPluginOptions {
-    options: {
+    options: Options;
+    imageConfig: SnowpackPluginResizeImagesOptions;
+};
+
+interface Options {
+        generateImagesOnDev: boolean;
         forceRebuild: boolean;
         silent: boolean;
         jsonOutput: string;
         defaultFormat: string;
-    };
-    imageConfig: SnowpackPluginResizeImagesOptions;
-};
+    }

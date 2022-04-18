@@ -4,7 +4,7 @@
 
 ## Experimental Plugin
 Still fighting with the capabilities of snowpack. If anyone knows how to passdown custom cli attributes to this plugin, let me know.
-<br>It only runs on the build process. In Dev work with the full image fallback.
+<br>It only runs on the build process. In the Dev Environment, you should work with the full image fallback and maybe the generated JSON.
 
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
@@ -24,7 +24,7 @@ npm i -D @oncede/snowpack-plugin-once-image-sharp@latest sharp@latest
 
 
 ```sh
-git clone @oncede/snowpack-plugin-once-image-sharp . && npm i && npm run example
+git clone @oncede/snowpack-plugin-once-image-sharp . && npm i && npm run example build
 ```
 
 ## Usage
@@ -34,6 +34,11 @@ git clone @oncede/snowpack-plugin-once-image-sharp . && npm i && npm run example
 <p>
 <br>
 </p>
+
+### This library only works on `snowpack build`
+to take advantage of the JSON output, run this command first
+`snowpack build` will output the images you want
+`snowpack build --watch` will only create the json
 
 ***
 <p>
@@ -51,7 +56,8 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
                     "silent": true,
                     "forceRebuild": false,
                     "defaultFormat": "webp",
-                    "jsonOutput": "lazysizes.json"
+                    "jsonOutput": "image_sizes.json",
+                    "generateImagesOnDev": false
                 },
                 "imageConfig": {
                     "**/*.jpg": [
@@ -123,10 +129,8 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
     ]
 ```
 <p>
-lazySizes.json Output<br>
-It might be easier to dynamically build the lazysizes images with this JSON
-
-This JSON will only build on `snowpack build`
+image_sizes.json.json Output<br>
+It might be easier to dynamically build the image sizes with this JSON
 </p>
 
 ```json
@@ -206,6 +210,11 @@ This JSON will only build on `snowpack build`
 
 
 ## Release History
+* 0.4.0
+    * added generateImagesOnDev Option to skip image generation during build --watch
+    * moved image_sizes.json.json to root folder
+    * calculates image sizes on build --watch rather than compiling the files
+    * simplified default option setup
 * 0.3.0
     * added a jsonOutput to simplify the dynamic usage
 * 0.2.3

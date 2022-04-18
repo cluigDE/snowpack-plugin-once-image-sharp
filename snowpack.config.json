@@ -15,7 +15,8 @@
                 "options": {
                     "silent": false,
                     "defaultFormat": "webp",
-                    "jsonOutput": "lazysizes.json"
+                    "jsonOutput": "image_sizes.json",
+                    "generateImagesOnDev": false
                 },
                 "imageConfig": {
                     "**/*.jpg": [
