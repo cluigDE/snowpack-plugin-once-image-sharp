@@ -1,6 +1,6 @@
 {
     "name": "@oncede/snowpack-plugin-once-image-sharp",
-    "version": "0.4.0",
+    "version": "0.6.0",
     "description": "snowpack plugin to use sharp with percentages",
     "repository": "git@github.com:cluigDE/snowpack-plugin-once-image-sharp.git",
     "bugs": "https://github.com/cluigDE/snowpack-plugin-once-image-sharp/issues",
@@ -33,6 +33,7 @@
         "@types/micromatch": "^4.0.1",
         "@types/sharp": "^0.25.1",
         "copy": "^0.3.2",
+        "glob": "^8.0.1",
         "lazysizes": "^5.3.2",
         "rimraf": "^3.0.2",
         "sharp": ">=0.25.4",

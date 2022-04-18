@@ -5,7 +5,7 @@
     },
     "exclude": [],
     "buildOptions": {
-        "clean": true,
+        "clean": false,
         "out": "./example/build"
     },
     "plugins": [
@@ -16,7 +16,7 @@
                     "silent": false,
                     "defaultFormat": "webp",
                     "jsonOutput": "image_sizes.json",
-                    "generateImagesOnDev": false
+                    "generateImagesOnDev": true
                 },
                 "imageConfig": {
                     "**/*.jpg": [

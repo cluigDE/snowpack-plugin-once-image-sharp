@@ -1,10 +1,13 @@
 # @oncede/snowpack-plugin-once-image-sharp
 > This library is in development and should not be used in production.<br>
-> For now I try to implement some kind of feedback and control over the generation of images.<br><br> Stay tuned for new Updates. <br><br> If you have any suggestions, don't hesitate to open an issue.
+> If you have any suggestions, don't hesitate to open an issue. <br><br>
+> Stay tuned for new Updates.
 
 ## Experimental Plugin
-Still fighting with the capabilities of snowpack. If anyone knows how to passdown custom cli attributes to this plugin, let me know.
-<br>It only runs on the build process. In the Dev Environment, you should work with the full image fallback and maybe the generated JSON.
+For now the plugins works as intended. By default it creates images only on build and gives you access to a json for the development environment.<br><br>
+As far as I know snowpack serves everything in the dev environment from the `src` folder, so even if you run `snowpack dev` with images, you cant serve them. I thought about creating them in the src folder with "-cache" as suffix to avoid further processing. But it's just not a good idea. If someone has a better and suffisticated idea, pls tell me. <br><br>
+Still fighting with the capabilities of snowpack. If anyone knows how to passdown custom cli attributes to this plugin, let me know. <br>
+In the Dev Environment, you should work with the full image fallback and the generated JSON.
 
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
@@ -34,11 +37,6 @@ git clone @oncede/snowpack-plugin-once-image-sharp . && npm i && npm run example
 <p>
 <br>
 </p>
-
-### This library only works on `snowpack build`
-to take advantage of the JSON output, run this command first
-`snowpack build` will output the images you want
-`snowpack build --watch` will only create the json
 
 ***
 <p>
@@ -129,8 +127,8 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
     ]
 ```
 <p>
-image_sizes.json.json Output<br>
-It might be easier to dynamically build the image sizes with this JSON
+image_sizes.json Output<br>
+It might be easier to dynamically build the image sizes with this JSON (take a look at the example)
 </p>
 
 ```json
@@ -210,6 +208,8 @@ It might be easier to dynamically build the image sizes with this JSON
 
 
 ## Release History
+* 0.7.0
+    * plugin runs on both (build && dev) processes.
 * 0.4.0
     * added generateImagesOnDev Option to skip image generation during build --watch
     * moved image_sizes.json.json to root folder
