@@ -1,20 +1,9 @@
 # @oncede/snowpack-plugin-once-image-sharp
-> This library is in development and should not be used in production.<br>
-> If you have any suggestions, don't hesitate to open an issue. <br><br>
-> Stay tuned for new Updates.
-
-## Experimental Plugin
-For now the plugins works as intended. By default it creates images only on build and gives you access to a json for the development environment.<br><br>
-As far as I know snowpack serves everything in the dev environment from the `src` folder, so even if you run `snowpack dev` with images, you cant serve them. I thought about creating them in the src folder with "-cache" as suffix to avoid further processing. But it's just not a good idea. If someone has a better and suffisticated idea, pls tell me. <br><br>
-Still fighting with the capabilities of snowpack. If anyone knows how to passdown custom cli attributes to this plugin, let me know. <br>
-In the Dev Environment, you should work with the full image fallback and the generated JSON.
-
 [![NPM Version][npm-image]][npm-url]
 [![Downloads Stats][npm-downloads]][npm-url]
 
-This snowpack plugin allows you to use the sharp image library with percentages for width and height.
+This snowpack plugin allows you to use the sharp image library with percentages for width.
 
-![](header.png)
 
 ## Installation
 
@@ -31,9 +20,9 @@ git clone @oncede/snowpack-plugin-once-image-sharp . && npm i && npm run example
 ```
 
 ## Usage
-> <b>options.forceRebuild</b> only takes effect if <b>buildOption.clean</b> is set to <b>false</b> <br>
+> <br><b>options.forceRebuild</b> only takes effect if <b>buildOption.clean</b> is set to <b>false</b> <br>
 > buildOption.clean clears the whole dist folder <br><br>
-> By default previously generated images would be skipped. (checked with fs.access by path )
+> By default previously generated images would be skipped. (checked with fs.access by path )<br>&nbsp;
 <p>
 <br>
 </p>
@@ -74,7 +63,7 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
                             "resize": {
                                 "width": "5%"
                             },
-                            "rename": { "suffix": "-5%" },
+                            "rename": { "suffix": "-5" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -84,7 +73,7 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
                             "resize": {
                                 "width": "20%"
                             },
-                            "rename": { "suffix": "-20%" },
+                            "rename": { "suffix": "-20" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -94,7 +83,7 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
                             "resize": {
                                 "width": "40%"
                             },
-                            "rename": { "suffix": "-40%" },
+                            "rename": { "suffix": "-40" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -104,7 +93,7 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
                             "resize": {
                                 "width": "60%"
                             },
-                            "rename": { "suffix": "-60%" },
+                            "rename": { "suffix": "-60" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -114,7 +103,7 @@ Simply add the following code to your snowpack.config.json (encapsulated by { } 
                             "resize": {
                                 "width": "80%"
                             },
-                            "rename": { "suffix": "-80%" },
+                            "rename": { "suffix": "-80" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -136,78 +125,82 @@ It might be easier to dynamically build the image sizes with this JSON (take a l
     "/assets/img/": {
         "dariusz-sankowski-dvK_CT1Wg78-unsplash": {
             "dariusz-sankowski-dvK_CT1Wg78-unsplash-init.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+                "format": "webp",
+                "size": -1,
+                "width": 46,
+                "height": 35
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-5%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-5.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 230,
+                "height": 173
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-10%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-10.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 461,
+                "height": 346
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-20%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-20.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 922,
+                "height": 692
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-30%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-30.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 1382,
+                "height": 1037
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-40%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-40.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 1843,
+                "height": 1382
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-50%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-50.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 2304,
+                "height": 1728
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-60%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-60.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 2765,
+                "height": 2074
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-70%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-70.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 3226,
+                "height": 2420
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-80%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-80.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 3686,
+                "height": 2765
             },
-            "dariusz-sankowski-dvK_CT1Wg78-unsplash-90%.webp": {
-                "format": "jpeg",
-                "size": 1069192,
-                "width": 4608,
-                "height": 3456
+            "dariusz-sankowski-dvK_CT1Wg78-unsplash-90.webp": {
+                "format": "webp",
+                "size": -1,
+                "width": 4147,
+                "height": 3110
             }
         }
     }
 }
+
 ```
 
 
 ## Release History
+* 1.0.0
+    * Plugin now serves images properly in dev
+    * Every folder containing an image will be mounted automatically to serve images properly
 * 0.7.0
     * plugin runs on both (build && dev) processes.
 * 0.4.0

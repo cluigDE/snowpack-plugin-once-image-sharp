@@ -8,12 +8,15 @@
         "clean": false,
         "out": "./example/build"
     },
+    "devOptions": {
+        "open": "none"
+    },
     "plugins": [
         [
             "@oncede/snowpack-plugin-once-image-sharp",
             {
                 "options": {
-                    "silent": false,
+                    "silent": true,
                     "defaultFormat": "webp",
                     "jsonOutput": "image_sizes.json",
                     "generateImagesOnDev": true
@@ -35,7 +38,7 @@
                             "resize": {
                                 "width": "5%"
                             },
-                            "rename": { "suffix": "-5%" },
+                            "rename": { "suffix": "-5" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -45,7 +48,7 @@
                             "resize": {
                                 "width": "10%"
                             },
-                            "rename": { "suffix": "-10%" },
+                            "rename": { "suffix": "-10" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -55,7 +58,7 @@
                             "resize": {
                                 "width": "20%"
                             },
-                            "rename": { "suffix": "-20%" },
+                            "rename": { "suffix": "-20" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -65,7 +68,7 @@
                             "resize": {
                                 "width": "30%"
                             },
-                            "rename": { "suffix": "-30%" },
+                            "rename": { "suffix": "-30" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -75,7 +78,7 @@
                             "resize": {
                                 "width": "40%"
                             },
-                            "rename": { "suffix": "-40%" },
+                            "rename": { "suffix": "-40" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -85,7 +88,7 @@
                             "resize": {
                                 "width": "50%"
                             },
-                            "rename": { "suffix": "-50%" },
+                            "rename": { "suffix": "-50" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -95,7 +98,7 @@
                             "resize": {
                                 "width": "60%"
                             },
-                            "rename": { "suffix": "-60%" },
+                            "rename": { "suffix": "-60" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -105,7 +108,7 @@
                             "resize": {
                                 "width": "70%"
                             },
-                            "rename": { "suffix": "-70%" },
+                            "rename": { "suffix": "-70" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -115,7 +118,7 @@
                             "resize": {
                                 "width": "80%"
                             },
-                            "rename": { "suffix": "-80%" },
+                            "rename": { "suffix": "-80" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80
@@ -125,7 +128,7 @@
                             "resize": {
                                 "width": "90%"
                             },
-                            "rename": { "suffix": "-90%" },
+                            "rename": { "suffix": "-90" },
                             "format": "webp",
                             "formatOptions": {
                                 "quality": 80

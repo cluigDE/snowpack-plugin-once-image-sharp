@@ -2,6 +2,7 @@ import "lazysizes";
 // import a plugin
 import "lazysizes/plugins/parent-fit/ls.parent-fit";
 
+
 async function getJSON(url = "") {
     // Default options are marked with *
     const response = await fetch(url, {
@@ -19,18 +20,22 @@ async function getJSON(url = "") {
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
-const folder = "/assets/img/";
-const imageName = "dariusz-sankowski-dvK_CT1Wg78-unsplash";
+(async function () {
+    const folder = "/assets/img/";
 
-document.addEventListener("lazybeforeunveil", async function (e: any) {
-    const image: HTMLImageElement = e.target;
-    const imageName = image.getAttribute('data-file');
-    const image_sizes = await getJSON("/image_sizes.json");
-    let srcSet = (Object.keys(image_sizes[folder][imageName]) as any)
-        .map((file) => {
-            const conf = image_sizes[folder][imageName][file];
-            return `${folder + file} ${conf.width}w,`;
-        })
-        .join(" \n");
-    image.setAttribute('data-srcset', srcSet);
-});
+    const image_sizes = await getJSON("/image_sizes/image_sizes.json");
+
+    if (document.querySelectorAll(".once-image-sharp").length) {
+        document.querySelectorAll(".once-image-sharp").forEach((image) => {
+            const imageName = image.getAttribute("data-file");
+            let srcSet = (Object.keys(image_sizes[folder][imageName]) as any)
+                .map((file) => {
+                    const conf = image_sizes[folder][imageName][file];
+                    return `${folder + file} ${conf.width}w,`;
+                })
+                .join(" \n");
+            image.setAttribute("data-srcset", srcSet);
+            image.classList.add('lazyload');
+        });
+    }
+})();

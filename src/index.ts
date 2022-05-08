@@ -8,10 +8,12 @@ import fs from "fs";
 import mkdirp from "mkdirp";
 import chalk from "chalk";
 import glob from "glob";
-import { PluginLoadOptions, SnowpackConfig } from "snowpack";
+import { PluginLoadOptions, RouteConfigObject, SnowpackConfig } from "snowpack";
 
 let options: Options;
 const jsonObj = {};
+
+const routesToRedirect = [];
 
 const defaultOptions: Options = {
     silent: true,
@@ -46,6 +48,9 @@ export default function plugin(
             relativePath = filePath
                 .replace(foundDir[0], "")
                 .replace(path.basename(filePath), "");
+        }
+        if(!routesToRedirect.includes(relativePath)) {
+            routesToRedirect.push(relativePath);
         }
         const contents = await fs.promises.readFile(filePath, "binary");
         base = base || sharp(Buffer.from(contents, "binary"));
@@ -89,8 +94,28 @@ export default function plugin(
 
             const pathToBe =
                 _.buildOptions.out + relativePath + newBasename + "." + toFormat;
+
+
+            const cloneReplacement = {
+                format: toFormat,
+                size: -1,
+                width: (methods["resize"] as any).width,
+                height: getCalculatedHeight(
+                    metadata,
+                    (methods["resize"] as any).width
+                ),
+            };
+            writeIntoJonObj(
+                relativePath,
+                basename,
+                {
+                    base: newBasename,
+                    extname: "." + toFormat,
+                },
+                cloneReplacement
+            );
+
             if (
-                false === _.buildOptions.clean &&
                 false === options.forceRebuild &&
                 (await checkFileExists(pathToBe))
             ) {
@@ -104,28 +129,8 @@ export default function plugin(
 
             const clone = convertImage(base, toFormat, formatOptions);
 
-            if (_.mode === "development" && !options.generateImagesOnDev) {
-                const cloneReplacement = {
-                    format: toFormat,
-                    size: -1,
-                    width: (methods["resize"] as any).width,
-                    height: getCalculatedHeight(
-                        metadata,
-                        (methods["resize"] as any).width
-                    ),
-                };
-                writeIntoJonObj(
-                    relativePath,
-                    basename,
-                    {
-                        base: newBasename,
-                        extname: "." + toFormat,
-                    },
-                    cloneReplacement
-                );
 
-                continue;
-            }
+
 
             const filteredMethods = { ...methods };
 
@@ -215,18 +220,37 @@ export default function plugin(
                 promisesToAwait.push(generateImages(filePath, globPattern));
             }
         }
-        Promise.all(promisesToAwait.flat());
 
-        if (options.jsonOutput !== null) {
-            fs.promises.writeFile(
-                options.jsonOutput,
-                JSON.stringify(jsonObj)
-            );
-        }
+        workerFunc(promisesToAwait, _);
+
     }
 
     return {
         name: "snowpack-plugin-once-image-sharp",
+        config(config: SnowpackConfig) {
+            routesToRedirect.forEach(route => {
+                let mountFolder = config.buildOptions.out + route;
+
+                mountFolder = mountFolder.substring(0, mountFolder.length - 1);
+
+                config.mount[mountFolder] = {
+                    url: route,
+                    static: true,
+                    resolve: false,
+                    dot: false,
+                };
+
+                if (options.jsonOutput) {
+                    config.mount[config.buildOptions.out + "/image_sizes"] = {
+                        url: "/image_sizes/",
+                        static: true,
+                        resolve: false,
+                        dot: false,
+                    };
+                }
+
+            });
+        },
         async load(plo: PluginLoadOptions) {
             const filePath = plo.filePath;
             let base;
@@ -239,8 +263,9 @@ export default function plugin(
             await Promise.all(promisesToAwait.flat());
 
             if (options.jsonOutput !== null) {
+                await mkdirp(_.buildOptions.out + "/image_sizes/");
                 await fs.promises.writeFile(
-                    options.jsonOutput,
+                    _.buildOptions.out + "/image_sizes/" + options.jsonOutput,
                     JSON.stringify(jsonObj)
                 );
             }
@@ -294,6 +319,18 @@ function getCalculatedHeight(metadata, targetWidth) {
 
 function onlyUnique(value, index, self) {
     return self.indexOf(value) === index;
+}
+
+async function workerFunc(promisesToAwait, _: SnowpackConfig) {
+    await Promise.all(promisesToAwait.flat());
+
+    let output = ''
+
+    output = _.buildOptions.out + "/image_sizes/" + options.jsonOutput;
+    await mkdirp(_.buildOptions.out + "/image_sizes/");
+    if (options.jsonOutput !== null) {
+        fs.promises.writeFile(output, JSON.stringify(jsonObj));
+    }
 }
 
 async function writeIntoJonObj(
